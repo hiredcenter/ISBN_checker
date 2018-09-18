@@ -7,7 +7,6 @@ $(function() {
 			$('.result').removeClass('error').text('正しいISBNコードです。');
 			$('.resultType').text(res['type']);
 			$('.resultCountry').text(res['country']);
-			console.log('if res:' + res['country']);
 		} else {
 			$('.result').addClass('error').text('不正なISBNコードです。');
 			$('.resultType').text('');
@@ -16,13 +15,11 @@ $(function() {
 	});
 
 	function checkISBN(isbn) {
-		var _res = {
-			type: 'hoge',
-			country: 'fuga'
-		};
-
-		//入力値にISBN,ハイフンがある場合除却
-		var splitHyphenIsbn = isbn.replace(/ISBN|-/gi, ''); // ISBN,ハイフンをすべて除却
+		var splitHyphenIsbn = isbn.replace(/ISBN|-/gi, ''), // ISBN,ハイフンをすべて除却
+			_res = {
+				type: 'hoge',
+				country: 'fuga'
+			};
 
 		//ISBN、ハイフン表記の判定
 		if (!/^(ISBN)?\d+-?\d-?\d+-?\d+-?[0-9X]$/i.test(isbn)) {
@@ -30,16 +27,14 @@ $(function() {
 		}
 
 		//ISBN-13の場合
-		if (/^978[014]\d{8}\d{1}$/.test(splitHyphenIsbn)) { //表記判定
-			_res['type'] = 'ISBN-13'; //typeをプロパティに入れる
-			//文字列分割し、配列の値(文字列)を数値に変換 ※数値のままでは分割できないのでNumber()の前に記述
-			var numISBN13 = splitHyphenIsbn.split('').map(function(value) {
+		if (/^978[014]\d{8}\d{1}$/.test(splitHyphenIsbn)) {
+			var numISBN13 = splitHyphenIsbn.split('').map(function(value) { //文字列分割し、配列の値(文字列)を数値に変換 ※数値のままでは分割できないのでNumber()の前に記述
 				return Number(value);
-			});
+			}),
+				numD,
+				result13 = 0;
 
 			//チェックディジット計算→forループできる 1,3の判定は余算
-			var result13 = 0;
-			var numD;
 			for (var i = 0; i < 12; i++) {
 				if (i % 2 !== 0) { //iが奇数番(i=1,3,5...)のときはnumD=3
 					numD = 3;
@@ -49,67 +44,56 @@ $(function() {
 				result13 += numISBN13[i] * numD;
 			}
 
-			var checkDigitISBN13 = 10 - result13 % 10;
+			var checkDig13 = 10 - result13 % 10;
 
-			//値が10の場合、0にする
-			if (checkDigitISBN13 === 10) {
-				checkDigitISBN13 = 0;
+			if (checkDig13 === 10) {
+				checkDig13 = 0;
 			}
-			//checkDigitISBN13 とnumISBN13[12]が一致しないなら、falseを返す!
-			if (checkDigitISBN13 !== numISBN13[12]) {
+			if (checkDig13 !== numISBN13[12]) {
 				return false;
 			}
 
-			//4文字目から言語圏判定(0,1:英語、4:日本)
-			if (numISBN13[3] === 0 || numISBN13[3] === 1) {
-				_res['country'] = '英語圏';
-				console.log(_res['type']);
-			} else if (numISBN13[3] === 4) {
-				_res['country'] = '日本語圏';
-			}
-			console.log(_res);
+			determineLang(numISBN13[3]); //4文字目から言語圏判定(0,1:英語、4:日本)
+			_res['type'] = 'ISBN-13';
 			res = _res;
 			return res; //オブジェクトをリターンさせる 関数の実行結果
 
 		//ISBN-10の場合
 		} else if (/^[014]\d{8}[0-9X]$/.test(splitHyphenIsbn)) {
-			_res['type'] = 'ISBN-10'; //typeをプロパティに入れる
-			//文字列分割し、配列の値(文字列)を数値に変換 ※数値のままでは分割できないのでNumber()の前に記述
-			var numISBN10 = splitHyphenIsbn.split('');
+			var numISBN10 = splitHyphenIsbn.split(''),
+				result10 = 0;
 
 			//チェックディジット計算
-			var result10 = 0;
 			for (var j = 0; j < 9; j++) {
 				result10 += numISBN10[j] * (10 - j);
 			}
-			var checkDigitISBN10 = 11 - result10 % 11;
-			//値が10の場合はX、11の場合は0
-			if (checkDigitISBN10 === 10) {
-				checkDigitISBN10 = 'X'; //これダメ、文字列をどう扱う？？ 文字列結合？
-			} else if (checkDigitISBN10 === 11) {
-				checkDigitISBN10 = 0;
-			}
+			var checkDig10 = 11 - result10 % 11;
 
-			//checkDigitISBN13 とnumISBN10[12]が一致しないなら、falseを返す!
-			console.log('checkDigitISBN10:'+ checkDigitISBN10);
-			console.log('numISBN10[9]:'+ numISBN10[9]);
-			if (String(checkDigitISBN10) !== numISBN10[9]) {
+			if (checkDig10 === 10) {
+				checkDig10 = 'X';
+			} else if (checkDig10 === 11) {
+				checkDig10 = 0;
+			}
+			if (String(checkDig10) !== numISBN10[9]) {
 				return false;
 			}
-			//1文字目から言語圏判定(0,1:英語、4:日本)
-			if (numISBN10[0] == 0 || numISBN10[0] == 1) {
-				_res['country'] = '英語圏';
-				console.log(_res['type']);
-			} else if (numISBN10[0] == 4) {
-				_res['country'] = '日本語圏';
-			}
-			console.log(_res);
+
+			determineLang(numISBN10[0]); //1文字目から言語圏判定
+			_res['type'] = 'ISBN-10';
 			res = _res;
 			return res; //オブジェクトをリターンさせる 関数の実行結果
 
-		//その他のパターン
 		} else {
 			return false;
+		}
+
+		//言語判定
+		function determineLang(numISBN) {
+			if (numISBN == 0 || numISBN == 1) {
+				_res['country'] = '英語圏';
+			} else if (numISBN == 4) {
+				_res['country'] = '日本語圏';
+			}
 		}
 	}
 });
