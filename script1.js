@@ -11,7 +11,7 @@ $(function(){
 	});
 
 	function checkISBN(isbn){
-		console.log(isbn);
+		//console.log(isbn);
 
 		//※ハイフン有無の判定
 		var regExpHyphen = /^(ISBN)?\d+-?\d-?\d+-?\d+-?\d$/i;
@@ -26,42 +26,39 @@ $(function(){
 			return false;
 		}
 
-		//Cの文字列分割
+		// //Cの文字列分割
 		var strC = splitHyphenIsbn.split('');//数値のままでは分割できないらしいのでNumber()の前に記述
 		//配列Cの値(文字列)を数値に変換
 		var numC = strC.map(function (value){
 			return Number(value);
 		});
 
-		/*
-		function calc(){
-			var result = 0;
-			for (var i = 0; i < 12; numC[i]*1) {
-				Things[i]
-			}
-		}
-		*/
-		function calc(a){
-			return a.reduce(function(x,y) {
-				return x + y;
-			});
-		}
-
 		//Cのチェックディジット計算→forループできる 1,3の判定は余り算%
-		var checkDigitC = 10 - ((numC[0]*1 + numC[1]*3 + numC[2]*1 + numC[3]*3 + numC[4]*1 + numC[5]*3 + numC[6]*1 + numC[7]*3 + numC[8]*1 + numC[9]*3 + numC[10]*1 + numC[11]*3) % 10);
-		console.log(checkDigitC);
-
+		var result = 0;
+		var numD;
+		for (var i = 0; i < 12; i++) {
+			if(i % 2 !== 0){ //iが奇数番のときはnumD=1
+				numD = 1;
+			}else if(i % 2 === 0){ //iが偶数番のときはnumD=3
+				numD = 3;
+			}
+			result+= numC[i]*numD;
+			//console.log(result);
+		}
+		//console.log(result);
+		var checkDigitC = 10 - result % 10;
+		//var resultCC = numC[0]*1 + numC[1]*3 + numC[2]*1 + numC[3]*3 + numC[4]*1 + numC[5]*3 + numC[6]*1 + numC[7]*3 + numC[8]*1 + numC[9]*3 + numC[10]*1 + numC[11]*3;
+		//var checkDigitCC = 10 - resultCC % 10;
+		//console.log(checkDigitC+checkDigitCC);
 
 		//値が10の場合、0にする
 		if(checkDigitC === 10) {
 			checkDigitC = 0;
 		}
-
 		//checkDigitC とnumC[12]が一致しないなら、falseを返す!
 		if (checkDigitC !== numC[12]) {
 			return false;
 		}
-
 		return true;
 	}
 });
