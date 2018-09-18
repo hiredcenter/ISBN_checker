@@ -37,7 +37,7 @@ $(function() {
 				return Number(value);
 			});
 
-			//Cのチェックディジット計算→forループできる 1,3の判定は余り算%
+			//チェックディジット計算→forループできる 1,3の判定は余算
 			var result13 = 0;
 			var numD;
 			for (var i = 0; i < 12; i++) {
@@ -72,12 +72,12 @@ $(function() {
 			return res; //オブジェクトをリターンさせる 関数の実行結果
 
 		//ISBN-10の場合
-		} else if (/^[014]\d{8}[0-9X]$/.test(isbn)) {
+		} else if (/^[014]\d{8}[0-9X]$/.test(splitHyphenIsbn)) {
 			_res['type'] = 'ISBN-10'; //typeをプロパティに入れる
 			//文字列分割し、配列の値(文字列)を数値に変換 ※数値のままでは分割できないのでNumber()の前に記述
 			var numISBN10 = splitHyphenIsbn.split('');
 
-			//Cのチェックディジット計算
+			//チェックディジット計算
 			var result10 = 0;
 			for (var j = 0; j < 9; j++) {
 				result10 += numISBN10[j] * (10 - j);
@@ -93,7 +93,7 @@ $(function() {
 			//checkDigitISBN13 とnumISBN10[12]が一致しないなら、falseを返す!
 			console.log('checkDigitISBN10:'+ checkDigitISBN10);
 			console.log('numISBN10[9]:'+ numISBN10[9]);
-			if (checkDigitISBN10 !== numISBN10[9]) {
+			if (String(checkDigitISBN10) !== numISBN10[9]) {
 				return false;
 			}
 			//1文字目から言語圏判定(0,1:英語、4:日本)
