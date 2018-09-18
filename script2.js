@@ -6,13 +6,25 @@ $(function() {
 		if (res) {
 			$('.result').removeClass('error').text('正しいISBNコードです。');
 			$('.resultType').text(res['type']);
+			//res['country'] = varCheckCountry;
 			$('.resultCountry').text(res['country']);
+			console.log('if res:' + res['country']);
 		} else {
 			$('.result').addClass('error').text('不正なISBNコードです。');
 			$('.resultType').text('');
 			$('.resultCountry').text('');
 		}
 	});
+
+	// var res = {
+	// 	//type: hoge,
+	// 	country: 'fuga'
+	// };
+	// console.log('res.country:' + res.country);
+
+	// Object.defineProperty(res, 'newDataProperty', {
+	// 	coutnry: 'fuga'
+	// });
 
 	function checkISBN(isbn) {
 		//入力値にISBN,ハイフンがある場合除却
@@ -21,7 +33,7 @@ $(function() {
 		//ISBN、ハイフン表記の判定
 		if (!/^(ISBN)?\d+-?\d-?\d+-?\d+-?\d$/i.test(isbn)) {
 			return false;
-			console.log('false');
+			//console.log('false');
 		}
 
 		//ISBN-13の場合
@@ -35,10 +47,10 @@ $(function() {
 			var result13 = 0;
 			var numD;
 			for (var i = 0; i < 12; i++) {
-				if (i % 2 !== 0) { //iが奇数番のときはnumD=1
-					numD = 1;
-				} else if (i % 2 === 0) { //iが偶数番のときはnumD=3
+				if (i % 2 !== 0) { //iが奇数番(i=1,3,5...)のときはnumD=3
 					numD = 3;
+				} else if (i % 2 === 0) { //iが偶数番(i=0,2.4.6...)のときはnumD=1
+					numD = 1;
 				}
 				result13 += numISBN13[i] * numD;
 			}
@@ -52,14 +64,24 @@ $(function() {
 			if (checkDigitISBN13 !== numISBN13[12]) {
 				return false;
 			}
-			//4文字目から言語圏判定(0,1:英語、4:日本)
-			// if ( splitHyphenIsbn[3] === 0 || splitHyphenIsbn[3] === 1) {
-			// 	// res['country'] = '英語圏';
-			// 	this.country = '英語圏';
-			// } else if (splitHyphenIsbn[3] === 4) {
-			// 	// res['country'] = '日本語圏';
-			// 	this.country = '日本語圏';
-			// }
+
+			var varCheckCountry = function checkCountry() {
+				//4文字目から言語圏判定(0,1:英語、4:日本)
+				if (numISBN13[3] === 0 || numISBN13[3] === 1) {
+					console.log(numISBN13[3]);
+					//res.country = '英語圏';
+					//return res['country'] = '英語圏';
+					return '英語圏';
+					//var resCountry = '英語圏';
+					//this.country = '英語圏';
+					//console.log('isbn13' + res['country']);
+				} else if (numISBN13[3] === 4) {
+					//res['country'] = '日本語圏';
+					//this.country = '日本語圏';
+				}
+
+			}
+			//$('.resultCountry').text(res['country']);
 			return true;
 
 		//ISBN-10の場合
