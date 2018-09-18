@@ -13,20 +13,18 @@ $(function(){
 	function checkISBN(isbn){
 		console.log(isbn);
 
-		//ハイフンがある場合
-		if (isbn.match(/-/)){
-			return isbn.match(/-/);
-			//※ハイフンが指定箇所にすべてある・なしの判定
-			var regExpHyphen = /^ISBN?978-[014]-\d{1,7}-\d{1,7}-\d{1}$/;
-			if(regExpHyphen.test(isbn)){
-				//何もしない
-			} else {
-				return false;
-			}
+		//※ハイフン有無の判定
+		var regExpHyphen = /^(ISBN)?\d+-?\d-?\d+-?\d+-?\d$/i;
+		if(!regExpHyphen.test(isbn)){
+			return false;
 		}
 		//入力値にISBN,ハイフンがある場合除却
-		var splitHyphenIsbn = isbn.replace(/ISBN|-/g, ''); // ISBN,ハイフンをすべて除却
+		var splitHyphenIsbn = isbn.replace(/ISBN|-/gi, ''); // ISBN,ハイフンをすべて除却
 		console.log(splitHyphenIsbn);
+		var regExpHyphen2 = /^978[014]\d{8}\d{1}$/;
+		if(!regExpHyphen2.test(splitHyphenIsbn)){
+			return false;
+		}
 
 		//Cの文字列分割
 		var strC = splitHyphenIsbn.split('');//数値のままでは分割できないらしいのでNumber()の前に記述
@@ -34,11 +32,28 @@ $(function(){
 		var numC = strC.map(function (value){
 			return Number(value);
 		});
+
+		/*
+		function calc(){
+			var result = 0;
+			for (var i = 0; i < 12; numC[i]*1) {
+				Things[i]
+			}
+		}
+		*/
+		function calc(a){
+			return a.reduce(function(x,y) {
+				return x + y;
+			});
+		}
+
 		//Cのチェックディジット計算→forループできる 1,3の判定は余り算%
 		var checkDigitC = 10 - ((numC[0]*1 + numC[1]*3 + numC[2]*1 + numC[3]*3 + numC[4]*1 + numC[5]*3 + numC[6]*1 + numC[7]*3 + numC[8]*1 + numC[9]*3 + numC[10]*1 + numC[11]*3) % 10);
 		console.log(checkDigitC);
+
+
 		//値が10の場合、0にする
-		if(checkDigitC == 10) {
+		if(checkDigitC === 10) {
 			checkDigitC = 0;
 		}
 
@@ -47,11 +62,6 @@ $(function(){
 			return false;
 		}
 
-		//入力値(文字列)を数値に変換
-		var numIsbn = Number(splitHyphenIsbn);
-		//ハイフン無しでの数値判定
-		var regExpNum = /^978[014]\d{8}\d{1}$/; //abの桁数の判定→最後に
-
-		return regExpNum.test(numIsbn); //.test()→文字列の有無を調べる
+		return true;
 	}
 });
