@@ -23,24 +23,12 @@ $(function(){
 			return false;
 		}
 
-		//文字列分割
-		//var strC = splitHyphenIsbn.split(''); //数値のままでは分割できないらしいのでNumber()の前に記述
-		//配列Cの値(文字列)を数値に変換
-		// var numC = strC.map(function (value) {
-		// 	return Number(value);
-		// });
-
 		//チェックディジット計算
-		var numD,
-		result = 0;
-
+		var n = 13,
+			numD,
+			result = 0;
 
 		for (var i = 0; i < n-1; i++) {
-			// if(i % 2 !== 0){ //iが奇数番のときはnumD=1
-			// 	numD = 3;
-			// } else { //iが偶数番のときはnumD=3
-			// 	numD = 1;
-			// }
 			i % 2 !== 0 ? numD = 3 : numD = 1;
 
 			result+= splitHyphenIsbn[i]*numD;
