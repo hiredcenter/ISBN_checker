@@ -16,10 +16,7 @@ $(function() {
 
 	function checkISBN(isbn) {
 		var splitHyphenIsbn = isbn.replace(/ISBN|-/gi, ''), // ISBN,ハイフンをすべて除却
-			_res = {
-				type: 'hoge',
-				country: 'fuga'
-			};
+			_res = {};
 
 		//ISBN、ハイフン表記の判定
 		if (!/^(ISBN)?\d+-?\d-?\d+-?\d+-?[0-9X]$/i.test(isbn)) {
@@ -28,20 +25,12 @@ $(function() {
 
 		//ISBN-13の場合
 		if (/^978[014]\d{9}$/.test(splitHyphenIsbn)) {
-			// var  splitHyphenIsbn = splitHyphenIsbn.split('').map(function(value) { //文字列分割し、配列の値(文字列)を数値に変換 ※数値のままでは分割できないのでNumber()の前に記述
-			// 	return Number(value);
-			// }),
 			var n = 13,
 				numD,
 				result13 = 0;
 
 			//チェックディジット計算→forループできる 1,3の判定は余算
 			for (var i = 0; i < n-1; i++) {
-				// if (i % 2 !== 0) { //iが奇数番(i=1,3,5...)のときはnumD=3
-				// 	numD = 3;
-				// } else { //iが偶数番(i=0,2.4.6...)のときはnumD=1
-				// 	numD = 1;
-				// }
 				i % 2 !== 0 ? numD = 3 : numD = 1;
 
 				result13 +=  splitHyphenIsbn[i] * numD;
@@ -58,12 +47,10 @@ $(function() {
 
 			determineLang(splitHyphenIsbn[3]); //4文字目から言語圏判定(0,1:英語、4:日本)
 			_res['type'] = 'ISBN-13';
-			res = _res;
-			return res; //オブジェクトをリターンさせる 関数の実行結果
+			return _res;
 
 		//ISBN-10の場合
 		} else if (/^[014]\d{8}[0-9X]$/.test(splitHyphenIsbn)) {
-			//var numISBN10 = splitHyphenIsbn.split(''),
 			var	result10 = 0;
 
 			//チェックディジット計算
@@ -77,15 +64,13 @@ $(function() {
 			} else if (checkDig10 === 11) {
 				checkDig10 = 0;
 			}
-			//if (String(checkDig10) !== splitHyphenIsbn[9]) {
 			if (checkDig10 != splitHyphenIsbn[9]) {
 				return false;
 			}
 
 			determineLang( splitHyphenIsbn[0]); //1文字目から言語圏判定
 			_res['type'] = 'ISBN-10';
-			res = _res;
-			return res; //オブジェクトをリターンさせる 関数の実行結果
+			return _res;
 
 		} else {
 			return false;
@@ -93,11 +78,7 @@ $(function() {
 
 		//言語判定
 		function determineLang(numISBN) {
-			if (numISBN == 0 || numISBN == 1) {
-				_res['country'] = '英語圏';
-			} else if (numISBN == 4) {
-				_res['country'] = '日本語圏';
-			}
+			numISBN == 4 ? _res['country'] = '日本語圏' : _res['country'] = '英語圏';
 		}
 	}
 });
