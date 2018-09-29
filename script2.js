@@ -16,6 +16,8 @@ $(function() {
 
 	function checkISBN(isbn) {
 		var splitIsbn = isbn.replace(/ISBN|-/gi, ''), // ISBN,ハイフンをすべて除却
+			n = splitIsbn.length,
+			numResult = 0,
 			_res = {},
 			checkDigFlg;
 
@@ -25,17 +27,11 @@ $(function() {
 		}
 
 		if (/^978[014]\d{9}$/.test(splitIsbn)) { //ISBN-13の場合
-			var n = 13,
-				num13,
-				result13 = 0;
-
 			//チェックディジット計算
 			for (var i = 0; i < n - 1; i++) {
-				i % 2 !== 0 ? num13 = 3 : num13 = 1;
-
-				result13 += splitIsbn[i] * num13;
+				numResult += splitIsbn[i] * (i % 2 ? 3 : 1);
 			}
-			_determinCheckDig(10, result13, splitIsbn[3], 'ISBN-13');
+			_determinCheckDig(10, numResult, splitIsbn[n - 10], 'ISBN-' + n);
 
 			if (checkDigFlg === 0) {
 				return false;
@@ -44,14 +40,11 @@ $(function() {
 			}
 
 		} else if (/^[014]\d{8}[0-9X]$/.test(splitIsbn)) { //ISBN-10の場合
-			var m = 10,
-				result10 = 0;
-
 			//チェックディジット計算
-			for (var j = 0; j < m - 1; j++) {
-				result10 += splitIsbn[j] * (10 - j);
+			for (var i = 0; i < n - 1; i++) {
+				numResult += splitIsbn[i] * (10 - i);
 			}
-			_determinCheckDig(11, result10, splitIsbn[0], 'ISBN-10');
+			_determinCheckDig(11, numResult, splitIsbn[n - 10], 'ISBN-' + n);
 
 			if (checkDigFlg === 0) {
 				return false;
@@ -80,7 +73,7 @@ $(function() {
 				return false;
 			} else {
 				checkDigFlg = 1; //return true
-				resIsnb == 4 ? _res['country'] = '日本語圏' : _res['country'] = '英語圏';
+				_res['country'] = resIsnb == 4 ? '日本語圏' : '英語圏';
 				_res['type'] = resType;
 				res = _res;
 			}
