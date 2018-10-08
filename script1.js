@@ -12,6 +12,7 @@ $(function () {
 
 	function checkISBN(isbn) {
 		var splitIsbn = isbn.replace(/ISBN|-/gi, ''), // ISBN,ハイフンをすべて除却
+			i,
 			n = splitIsbn.length,
 			prmCheckDig = 0,
 			numCheckDig;
@@ -23,25 +24,17 @@ $(function () {
 
 		//チェックディジット算出のパラメータを設定
 		if (/^978[014]\d{9}$/.test(splitIsbn)) { //ISBN-13候補の場合
-			for (var i = 0; i < n - 1; i++) {
+			for (i = 0; i < n - 1; i++) {
 				prmCheckDig += splitIsbn[i] * (i % 2 ? 3 : 1);
 			}
-
 			numCheckDig = 10 - prmCheckDig % 10; //チェックディジット算出
-
 			if (numCheckDig === 10) {
 				numCheckDig = 0;
 			}
-
-			//チェックディジット判定
-			if (numCheckDig != splitIsbn[n - 1]) { //チェックディジットと入力値の末尾の値比較
-				return false;
-			} else {
+			if (numCheckDig === splitIsbn[n - 1]) { //チェックディジットと入力値の末尾の値比較
 				return true;
 			}
 		}
-
 		return false;
 	}
-
 });
